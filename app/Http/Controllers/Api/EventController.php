@@ -7,29 +7,33 @@ use Illuminate\Http\Request;
 
 class EventController
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
-        //
+        return Event::all();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            "name" => "required|string|max:255",
+            "description" => "nullable|string",
+            "start_time" => "required|date",
+            "end_time" => "required|date|after:start_time",
+        ]);
+
+        $event = Event::create([...$data , "user_id" => 1]);
+
+        return $event;
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(Event $event)
     {
-        //
+        return Event::find($event->id);
     }
+
 
     /**
      * Update the specified resource in storage.

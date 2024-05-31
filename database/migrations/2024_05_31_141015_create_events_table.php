@@ -15,6 +15,8 @@ return new class extends Migration
 
             $table->string('name');
             $table->text('description')->nullable();
+            $table->dateTime('start_time');
+            $table->dateTime('end_time');
 
             // $table->foreignIdFor(User::class)->constrained('users')->onDelete('cascade')->onUpdate('cascade');
 
