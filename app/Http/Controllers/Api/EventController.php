@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\EventResource;
 use App\Models\Event;
 use Illuminate\Http\Request;
 
@@ -10,7 +11,9 @@ class EventController
 
     public function index()
     {
-        return Event::all();
+        return EventResource::collection(
+            Event::with('user')->paginate()
+        );
     }
 
 
@@ -25,29 +28,35 @@ class EventController
 
         $event = Event::create([...$data , "user_id" => 1]);
 
-        return $event;
+        return new EventResource($event);
     }
 
 
     public function show(Event $event)
     {
-        return Event::find($event->id);
+        return new EventResource($event->load(['user' , 'attendees']));
     }
 
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Event $event)
     {
-        //
+        $data = $request->validate([
+            "name" => "sometimes|string|max:255",
+            "description" => "nullable|string",
+            "start_time" => "sometimes|date",
+            "end_time" => "sometimes|date|after:start_time",
+        ]);
+
+        $event = Event::find($event->id);
+        $event->update($data);
+
+        return new EventResource($event);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Event $event)
     {
-        //
+        $event->delete();
+
+        return response(status: 204);
     }
 }
