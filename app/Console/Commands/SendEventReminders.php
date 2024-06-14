@@ -23,28 +23,19 @@ class SendEventReminders extends Command
      */
     protected $description = 'Sends notification to all event attendees that event starts soon';
 
-    /**
-     * Execute the console command.
-     */
+
     public function handle()
     {
         $events = Event::with('attendees.user')
             ->whereBetween('start_time' , [now() , now()->addDay()])
             ->get();
 
-        // $events->each(function($event) {
-        //     $event->attendees->each(function ($attendee) {
-        //         $this->info('Notifying the user '. $attendee->user_id );
-        //         $attendee->user->notify(new EventReminderNotification($attendee->event));
-        //     });
-        // });
-
-        foreach( $events as $event ) {
-            foreach( $event->attendees as $attendee ) {
+        $events->each(function($event) {
+            $event->attendees->each(function ($attendee) {
                 $this->info('Notifying the user '. $attendee->user_id );
-                $attendee->user->notify(new EventReminderNotification($event));
-            }
-        }
+                $attendee->user->notify(new EventReminderNotification($attendee->event));
+            });
+        });
 
         $eventsCount = $events->count();
         $eventLabel = Str::plural('event', $eventsCount);

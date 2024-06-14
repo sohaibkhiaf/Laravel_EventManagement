@@ -9,12 +9,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 trait CanLoadRelationships
 {
 
-    public function loadRelations( Model|Builder|HasMany $for , array $relations) : Model|Builder|HasMany
+    public function loadRelationships( Model|Builder|HasMany $for , array $relationships) : Model|Builder|HasMany
     {
-
-        foreach($relations as $key => $relation) 
+        foreach($relationships as $key => $relation) 
         {
-
             if( filter_var( request()->query($key), FILTER_VALIDATE_BOOLEAN) === true){
 
                 if($for instanceof Model){
@@ -22,11 +20,8 @@ trait CanLoadRelationships
                 }else{
                     $for->with($relation);
                 }
-                
             }
         }
-
         return $for;
-
     }
 }

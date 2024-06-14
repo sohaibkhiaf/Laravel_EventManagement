@@ -13,19 +13,22 @@ class AttendeeController extends Controller
 {
     use CanLoadRelationships;
 
-    private $relations = ['attendeeinfo' => 'user'];
+    private $relationships = ['attendeeinfo' => 'user'];
 
     public function __construct()
     {
+        // ensure authentication (login)
         $this->middleware('auth:sanctum' , ['except'=> ['index','show']]);
+        // ensure rate limitting (rate limitter)
         $this->middleware('throttle:api' , ['only' => ['store' , 'destroy']]);
+        // ensure authorization (policies)
         $this->authorizeResource(Attendee::class , 'attendee');
     }
 
     public function index(Event $event)
     {
-        $attendees = $this->loadRelations(
-            $event->attendees()->latest() , $this->relations
+        $attendees = $this->loadRelationships(
+            $event->attendees()->latest() , $this->relationships
         );
 
         return AttendeeResource::collection(
@@ -35,14 +38,10 @@ class AttendeeController extends Controller
 
     public function store(Request $request, Event $event )
     {
-        // $attendee = $event->attendees()->create([
-        //     "user_id" => $request->user()->id
-        // ]);
-
-        $attendee = $this->loadRelations(
+        $attendee = $this->loadRelationships(
             $event->attendees()->create([
                 "user_id" => $request->user()->id
-            ]), $this->relations
+            ]), $this->relationships
         );
 
         return new AttendeeResource($attendee);
@@ -52,16 +51,9 @@ class AttendeeController extends Controller
     public function show(Event $event , Attendee $attendee)
     {
         return new AttendeeResource(
-            $this->loadRelations($attendee , $this->relations)
+            $this->loadRelationships($attendee , $this->relationships)
         );
     }
-
-
-    public function update(Request $request , Attendee $attendee)
-    {
-        //
-    }
-
 
     public function destroy(Event $event ,Attendee $attendee)
     {

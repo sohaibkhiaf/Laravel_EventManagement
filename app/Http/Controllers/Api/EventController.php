@@ -12,20 +12,27 @@ class EventController extends Controller
 {
     use CanLoadRelationships;
 
-    private $relations = [ 'organizer' => 'user', 'attendees' => 'attendees', 'attendeeinfo' => 'attendees.user'];
+    private $relationships = [
+        'organizer' => 'user', 
+        'attendees' => 'attendees', 
+        'attendeeinfo' => 'attendees.user'
+    ];
 
 
     public function __construct()
     {
+        // ensure authentication (login)
         $this->middleware('auth:sanctum' , ['except'=> ['index','show']]);
+        // ensure rate limitting (rate limitter)
         $this->middleware('throttle:api' , ['only' => ['store' , 'update', 'destroy']]);
+        // ensure authorization (policies)
         $this->authorizeResource(Event::class , 'event');
     }
 
 
     public function index()
     {
-        $events = $this->loadRelations(Event::query() , $this->relations);
+        $events = $this->loadRelationships(Event::query() , $this->relationships);
 
         return EventResource::collection(
             $events->latest()->paginate()
@@ -48,7 +55,7 @@ class EventController extends Controller
     }
     public function show(Event $event)
     {
-        return new EventResource($this->loadRelations($event , $this->relations));
+        return new EventResource($this->loadRelationships($event , $this->relationships));
     }
 
 

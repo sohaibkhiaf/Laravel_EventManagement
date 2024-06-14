@@ -22,7 +22,7 @@ class AttendeeSeeder extends Seeder
             foreach ($eventsToAttend as $event) {
                 Attendee::factory()->create([
                     "user_id" => $user->id,
-                    "event_id" => $event->id
+                    "event_id" => $event->id,
                 ]);
             }
         }
